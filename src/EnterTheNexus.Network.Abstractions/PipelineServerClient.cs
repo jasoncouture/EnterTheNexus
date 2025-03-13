@@ -8,7 +8,7 @@ public sealed class PipelineServerClient<TPacket> : IServerClient<TPacket> where
     private readonly IServer<TPacket> _server;
     private readonly IPipeFactory<TPacket> _pipeFactory;
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    
+
 
     public ICommunicationChannel CommunicationChannel { get; }
 

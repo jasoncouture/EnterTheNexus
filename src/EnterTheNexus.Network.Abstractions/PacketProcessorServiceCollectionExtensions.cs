@@ -21,7 +21,7 @@ public static class PacketProcessorServiceCollectionExtensions
     }
 
     public static IServiceCollection AddPacketHandler<TPacket, TService>(this IServiceCollection services)
-        where TService : class, 
+        where TService : class,
         IPacketHandler<TPacket> where TPacket : class
     {
         services.TryAddScoped<IPacketHandler<TPacket>, TService>();

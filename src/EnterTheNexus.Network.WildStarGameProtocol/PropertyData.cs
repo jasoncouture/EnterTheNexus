@@ -14,7 +14,7 @@ public record PropertyData(int? Bits, PropertyInfo PropertyInfo, int Order)
     private static readonly ConcurrentDictionary<Type, Func<BitReader, PropertyData, object>>
         ConverterCache = new ConcurrentDictionary<Type, Func<BitReader, PropertyData, object>>();
 
-    private static readonly MethodInfo GenericConverterMethod ;
+    private static readonly MethodInfo GenericConverterMethod;
 
     static PropertyData()
     {

@@ -68,6 +68,6 @@ public sealed class Server<TPacket> : IServer<TPacket> where TPacket : class
             if (!newClient.IsConnected) return;
             _clients.Add(newClient);
         }
-        
+
     }
 }

@@ -7,7 +7,7 @@ namespace EnterTheNexus.Network.UnitTests;
 [PacketType(PacketType.ClientCheat)]
 public class TestPacket : IWildStarPacket
 {
-    
+
     public int Field1 { get; set; }
     [DataMember(Order = 2)]
     public int Field2 { get; set; }

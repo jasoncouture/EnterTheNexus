@@ -24,7 +24,7 @@ public class SocketCommunicationChannel : ICommunicationChannel
 
     public void Close()
     {
-        if(!IsConnected) return;
+        if (!IsConnected) return;
         try
         {
             _socket.Close();

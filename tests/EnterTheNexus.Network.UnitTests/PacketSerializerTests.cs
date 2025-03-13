@@ -14,7 +14,7 @@ public class PacketSerializerTests
         var serviceProvider = new ServiceCollection()
             .AddWildStarPacketSerializer()
             .BuildServiceProvider();
-        
+
         var serializer = new WildStarPacketSerializer(serviceProvider);
         serializer.TryDeserialize(_packet, out var packet, out var length).ShouldBeTrue();
         length.ShouldBe((int)_packet.Length - 1);
@@ -24,7 +24,7 @@ public class PacketSerializerTests
         inboundPacket.Field1.ShouldBe(3);
         inboundPacket.IgnoredField.ShouldBe("Ignored");
     }
-    
+
     private static ReadOnlySequence<byte> _packet;
     static PacketSerializerTests()
     {
@@ -33,7 +33,7 @@ public class PacketSerializerTests
     private static byte[] GeneratePacket()
     {
         using var testStream = new MemoryStream();
-        
+
         testStream.Seek(4, SeekOrigin.Begin);
         var bytes = BitConverter.GetBytes((ushort)PacketType.ClientCheat);
         testStream.Write(bytes, 0, bytes.Length);
@@ -48,7 +48,7 @@ public class PacketSerializerTests
         testStream.Seek(0, SeekOrigin.Begin);
         testStream.Write(bytes, 0, bytes.Length);
         testStream.Flush();
-        
+
         return testStream.ToArray();
     }
 }
