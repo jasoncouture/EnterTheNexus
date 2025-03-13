@@ -69,7 +69,7 @@ public class BitReader
         {
             var next = bits > 8 ? 8 : bits;
             bits -= next;
-            int index = 0;
+            var index = 0;
             if (!rawOrder && !BitConverter.IsLittleEndian)
             {
                 index = bytes.Length - 1 - counter;

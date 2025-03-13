@@ -2,23 +2,23 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.Extensions.Options;
 
 namespace EnterTheNexus.Network.Abstractions;
 
-public sealed class Server<TPacket> : IServer<TPacket> where TPacket : class
+public abstract class Server<TPacket> : IServer<TPacket> where TPacket : class
 {
-    private readonly IPEndPoint _endPoint;
     private readonly IServerClientFactory<TPacket> _clientFactory;
 
     [SuppressMessage("ReSharper", "CollectionNeverQueried.Local",
         Justification = "Used to prevent garbage collection of clients")]
     private readonly HashSet<IServerClient<TPacket>> _clients = new HashSet<IServerClient<TPacket>>();
-
     private readonly IServiceProvider _serviceProvider;
+    private readonly IOptionsMonitor<ServerOptions> _optionsMonitor;
 
-    public Server(IPEndPoint endPoint, IServerClientFactory<TPacket> clientFactory, IServiceProvider serviceProvider)
+    public Server(IOptionsMonitor<ServerOptions> optionsMonitor, IServerClientFactory<TPacket> clientFactory, IServiceProvider serviceProvider)
     {
-        _endPoint = endPoint;
+        _optionsMonitor = optionsMonitor;
         _clientFactory = clientFactory;
         _serviceProvider = serviceProvider;
     }
@@ -28,13 +28,14 @@ public sealed class Server<TPacket> : IServer<TPacket> where TPacket : class
         using var clientShutdownToken = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
         try
         {
-            using var listener = new TcpListener(_endPoint);
+            var endPoint = GetIPEndPoint();
+            using var listener = new TcpListener(endPoint);
             listener.Start();
             while (!stoppingToken.IsCancellationRequested)
             {
                 var client = await listener.AcceptTcpClientAsync(stoppingToken);
                 using var _ = ExecutionContext.SuppressFlow();
-                await OnClientAcceptedAsync(client, clientShutdownToken.Token).ConfigureAwait(false);
+                OnClientAccepted(client, clientShutdownToken.Token);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -50,6 +51,32 @@ public sealed class Server<TPacket> : IServer<TPacket> where TPacket : class
         }
     }
 
+    private const int DefaultPort = 24000;
+
+    private IPEndPoint GetIPEndPoint()
+    {
+        var uri = _optionsMonitor.CurrentValue.ListenUri;
+        var host = uri.DnsSafeHost;
+        var port = uri.Port;
+        var scheme = uri.Scheme;
+        if (scheme != "tcp")
+        {
+            throw new NotSupportedException($"Invalid listen URI '{uri}' unsupported scheme '{scheme}'");
+        }
+
+        if (port == 0)
+        {
+            throw new NotSupportedException($"Invalid listen URI '{uri}' port must be specified");
+        }
+
+        if (!IPAddress.TryParse(host, out var ipAddress))
+        {
+            throw new NotSupportedException($"Invalid listen URI '{uri}' host '{host}' must be an IP Address");
+        }
+        
+        return new IPEndPoint(ipAddress, port);
+    }
+
     public void ClientDisconnected(IServerClient<TPacket> client)
     {
         lock (_clients)
@@ -58,7 +85,7 @@ public sealed class Server<TPacket> : IServer<TPacket> where TPacket : class
         }
     }
 
-    private async Task OnClientAcceptedAsync(TcpClient client, CancellationToken stoppingToken)
+    private void OnClientAccepted(TcpClient client, CancellationToken stoppingToken)
     {
         var newClient = _clientFactory.Create(client, this, _serviceProvider, stoppingToken);
         newClient.RunAsync(stoppingToken).Orphan();
@@ -68,6 +95,5 @@ public sealed class Server<TPacket> : IServer<TPacket> where TPacket : class
             if (!newClient.IsConnected) return;
             _clients.Add(newClient);
         }
-        
     }
 }

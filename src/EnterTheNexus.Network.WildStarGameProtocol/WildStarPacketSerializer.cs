@@ -119,7 +119,7 @@ public class WildStarPacketSerializer : IPacketSerializer<IWildStarPacket>
         {
             field.SetFromReader(bitReader, packetImplementation, this, packetType);
         }
-        
+
         return packetImplementation;
     }
 
