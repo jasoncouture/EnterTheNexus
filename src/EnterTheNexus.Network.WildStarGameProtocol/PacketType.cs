@@ -251,7 +251,7 @@ public enum PacketType : ushort
     ClientSetInputKeySet = 0x0571,
     ClientHelloRealm = 0x058F,
     ServerAuthAccepted = 0x0591,
-    ClientHelloAuth = 0x0592,
+    ClientHelloAuthentication = 0x0592,
     ServerLogout = 0x0594,
     ClientPlayerInfoRequest = 0x0597,
     ServerPlayerInfoBasicResponse = 0x0598,

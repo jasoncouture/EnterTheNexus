@@ -1,6 +1,6 @@
 namespace EnterTheNexus.Network.WildStarGameProtocol.Authentication;
 
-[PacketType(PacketType.ClientHelloAuth)]
+[PacketType(PacketType.ClientHelloAuthentication)]
 public class ClientHelloAuth 
 {
 
