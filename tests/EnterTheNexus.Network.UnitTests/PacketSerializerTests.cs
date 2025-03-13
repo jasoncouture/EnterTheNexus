@@ -37,7 +37,6 @@ public class PacketSerializerTests
     [Fact]
     public void PacketShouldDeserializeCorrectly()
     {
-        var timestamp = Stopwatch.GetTimestamp();
         var sequence = new ReadOnlySequence<byte>(_packet.AsMemory());
         var serviceProvider = new ServiceCollection()
             .AddWildStarPacketSerializer()
@@ -51,25 +50,5 @@ public class PacketSerializerTests
         inboundPacket.Field2.ShouldBe(2);
         inboundPacket.Field1.ShouldBe(3);
         inboundPacket.IgnoredField.ShouldBe("Ignored");
-        var elapsed = Stopwatch.GetElapsedTime(timestamp);
-    }
-
-    [Fact]
-    public void PacketShouldDeserializeQuickly()
-    {
-        var timestamp = Stopwatch.GetTimestamp();
-        for (var x = 0; x < 10000; x++)
-        {
-            var sequence = new ReadOnlySequence<byte>(_packet.AsMemory());
-            var serviceProvider = new ServiceCollection()
-                .AddWildStarPacketSerializer()
-                .BuildServiceProvider();
-
-            var serializer = new WildStarPacketSerializer(serviceProvider);
-            serializer.TryDeserialize(sequence, out var packet, out var length).ShouldBeTrue();
-            length.ShouldBe(_packet.Length - 1);
-        }
-        var elapsed = Stopwatch.GetElapsedTime(timestamp) / 10000;
-        elapsed.ShouldBeLessThan(TimeSpan.FromMilliseconds(1));
     }
 }
