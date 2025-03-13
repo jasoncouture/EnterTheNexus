@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EnterTheNexus.Network.WildStarGameProtocol\EnterTheNexus.Network.WildStarGameProtocol.csproj" />
+  </ItemGroup>
+
 </Project>
