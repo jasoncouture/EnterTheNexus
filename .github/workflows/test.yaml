@@ -6,6 +6,15 @@ on:
       - '**.csproj'
       - '**.props'
       - '**.config'
+  push:
+    branches:
+      - main
+      - release/**
+    paths:
+      - '**.cs'
+      - '**.csproj'
+      - '**.props'
+      - '**.config'
 
 jobs:
   unit-tests:
