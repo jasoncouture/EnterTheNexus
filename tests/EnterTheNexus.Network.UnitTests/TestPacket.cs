@@ -1,5 +1,4 @@
 ﻿using System.Runtime.Serialization;
-using EnterTheNexus.Network.Abstractions;
 using EnterTheNexus.Network.WildStarGameProtocol;
 
 namespace EnterTheNexus.Network.UnitTests;
