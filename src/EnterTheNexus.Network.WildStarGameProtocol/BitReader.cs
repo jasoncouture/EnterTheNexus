@@ -127,6 +127,13 @@ public class BitReader
         return converter(data);
     }
 
+    public byte[] ReadByteArray(int length)
+    {
+        Span<byte> data = stackalloc byte[length];
+        ReadBitSequence(data, length * 8, rawOrder: true);
+        return data.ToArray();
+    }
+
 
     private static bool ReadBitInternal(byte data, BitPosition position)
     {

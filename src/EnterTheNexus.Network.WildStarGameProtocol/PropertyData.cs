@@ -22,9 +22,11 @@ public record PropertyData(int? Bits, PropertyInfo PropertyInfo, int Order)
             .Single(i => i.Name == nameof(ConvertToType));
         GenericConverterMethod = method;
     }
+
     private static Func<BitReader, PropertyData, object> GetConverterInternal(Type type)
     {
-        return (Func<BitReader, PropertyData, object>)Delegate.CreateDelegate(typeof(Func<BitReader, PropertyData, object>),
+        return (Func<BitReader, PropertyData, object>)Delegate.CreateDelegate(
+            typeof(Func<BitReader, PropertyData, object>),
             GenericConverterMethod.MakeGenericMethod(type));
     }
 
@@ -109,6 +111,21 @@ public record PropertyData(int? Bits, PropertyInfo PropertyInfo, int Order)
         else if (PropertyInfo.PropertyType.IsAssignableTo(typeof(PacketType)))
         {
             PropertyInfo.SetValue(packet, packetType);
+        }
+        else if (PropertyInfo.PropertyType == typeof(Guid))
+        {
+            // Data1 = reader.ReadInt();
+            // Data2 = reader.ReadShort();
+            // Data3 = reader.ReadShort();
+            // Data4 = reader.ReadBytes(8u);
+            // Guid  = new Guid(Data1, Data2, Data3, Data4);
+            var guid = new Guid(
+                reader.Read(BitConverter.ToInt32),
+                reader.Read(BitConverter.ToInt16),
+                reader.Read(BitConverter.ToInt16),
+                reader.ReadByteArray(8)
+            );
+            PropertyInfo.SetValue(packet, guid);
         }
         else if (PropertyInfo.PropertyType is { IsValueType: true, IsPrimitive: true })
         {
