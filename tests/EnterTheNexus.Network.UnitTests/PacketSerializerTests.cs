@@ -8,10 +8,27 @@ namespace EnterTheNexus.Network.UnitTests;
 
 public class PacketSerializerTests
 {
-    private static byte[] _packet;
+    [Fact]
+    public void PacketShouldDeserializeCorrectly()
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddWildStarPacketSerializer()
+            .BuildServiceProvider();
+        
+        var serializer = new WildStarPacketSerializer(serviceProvider);
+        serializer.TryDeserialize(_packet, out var packet, out var length).ShouldBeTrue();
+        length.ShouldBe((int)_packet.Length - 1);
+        var inboundPacket = packet.ShouldBeOfType<TestPacket>();
+        inboundPacket.Field3.ShouldBe(1);
+        inboundPacket.Field2.ShouldBe(2);
+        inboundPacket.Field1.ShouldBe(3);
+        inboundPacket.IgnoredField.ShouldBe("Ignored");
+    }
+    
+    private static ReadOnlySequence<byte> _packet;
     static PacketSerializerTests()
     {
-        _packet = GeneratePacket();
+        _packet = new ReadOnlySequence<byte>(GeneratePacket());
     }
     private static byte[] GeneratePacket()
     {
@@ -33,22 +50,5 @@ public class PacketSerializerTests
         testStream.Flush();
         
         return testStream.ToArray();
-    }
-    [Fact]
-    public void PacketShouldDeserializeCorrectly()
-    {
-        var sequence = new ReadOnlySequence<byte>(_packet.AsMemory());
-        var serviceProvider = new ServiceCollection()
-            .AddWildStarPacketSerializer()
-            .BuildServiceProvider();
-        
-        var serializer = new WildStarPacketSerializer(serviceProvider);
-        serializer.TryDeserialize(sequence, out var packet, out var length).ShouldBeTrue();
-        length.ShouldBe(_packet.Length - 1);
-        var inboundPacket = packet.ShouldBeOfType<TestPacket>();
-        inboundPacket.Field3.ShouldBe(1);
-        inboundPacket.Field2.ShouldBe(2);
-        inboundPacket.Field1.ShouldBe(3);
-        inboundPacket.IgnoredField.ShouldBe("Ignored");
     }
 }
