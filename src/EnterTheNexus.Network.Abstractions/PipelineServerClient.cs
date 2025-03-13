@@ -61,7 +61,7 @@ public sealed class PipelineServerClient<TPacket> : IServerClient<TPacket> where
                 await ProcessPacketAsync(next, pipeReader, stoppingToken);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Ignored
         }
